@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新北市政府兒童及少年福利與權益促進委員會｜列管案件彙整</title>
+<style>
+  :root{
+    --bg:#ECEDEF;
+    --ink:#2E3136;
+    --ink-2:#5A5F66;
+    --ink-3:#8A8F96;
+    --card:#FFFFFF;
+    --line:#E2E4E8;
+    --accent:#1F6F8B;
+    --open:#C2410C;
+    --open-bg:#FFF1E8;
+    --closed:#3F7E44;
+    --closed-bg:#EAF5EA;
+    --radius:18px;
+    --shadow:0 1px 2px rgba(20,24,30,.05),0 6px 18px rgba(20,24,30,.07);
+    --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei","Heiti TC",sans-serif;
+    --serif:"Songti TC","Noto Serif TC","PMingLiU",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{padding:48px 0 88px}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+
+  header h1{font-size:clamp(22px,2.6vw,32px);font-weight:700;letter-spacing:.02em;line-height:1.35;margin:0 0 6px;color:var(--ink)}
+  header h1 .sep{color:var(--ink-3);font-weight:400;margin:0 .2em}
+  header .sub{color:var(--ink-3);font-size:13.5px;letter-spacing:.04em}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:28px 0 22px}
+  .chips{display:flex;gap:6px;background:#E1E3E6;padding:4px;border-radius:999px}
+  .chip{border:0;background:transparent;font:inherit;font-size:13.5px;color:var(--ink-2);padding:7px 14px;border-radius:999px;cursor:pointer}
+  .chip.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:600}
+  .search{flex:1;min-width:200px;max-width:340px;margin-left:auto;position:relative}
+  .search input{width:100%;border:1px solid transparent;background:#fff;border-radius:999px;padding:9px 16px 9px 36px;font:inherit;font-size:14px;color:var(--ink);outline:none;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .search input:focus{border-color:var(--accent)}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+  .count{font-size:13px;color:var(--ink-3)}
+
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:640px){.grid{grid-template-columns:minmax(0,1fr)}.wrap{padding:0 18px}body{padding-top:32px}}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 22px 20px;cursor:pointer;display:flex;flex-direction:column;gap:12px;text-align:left;border:1px solid transparent;font:inherit;color:inherit;transition:transform .18s ease,box-shadow .18s ease,border-color .18s;opacity:0;animation:rise .45s ease forwards}
+  .card:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(20,24,30,.06),0 14px 30px rgba(20,24,30,.10)}
+  .card:focus-visible{outline:none;border-color:var(--accent)}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .status{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .status.open{color:var(--open);background:var(--open-bg)}
+  .status.closed{color:var(--closed);background:var(--closed-bg)}
+  .case-no{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+
+  .card h2{font-size:17.5px;line-height:1.5;margin:0;font-weight:700;color:var(--ink)}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;line-height:1.55}
+  .meta dt{color:var(--ink-3)}
+  .meta dd{margin:0;color:var(--ink-2)}
+  .summary{font-size:13.5px;line-height:1.75;color:var(--ink-2);margin:0;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+  .sdgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
+  .sdg{display:inline-flex;align-items:center;gap:6px;color:#fff;font-size:12px;font-weight:600;padding:4px 10px 4px 4px;border-radius:7px;line-height:1.2}
+  .sdg b{background:rgba(255,255,255,.22);border-radius:5px;min-width:22px;height:20px;display:inline-grid;place-items:center;font-size:12px}
+
+  .empty,.loading{grid-column:1/-1;text-align:center;color:var(--ink-3);padding:60px 0;font-size:14px}
+  .note{font-size:12px;color:var(--ink-3);margin-top:28px;text-align:center}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(30,33,38,.42);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:5vh 16px 60px;z-index:50;overflow-y:auto}
+  .overlay.show{display:flex;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{background:#fff;border-radius:22px;max-width:820px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.25);position:relative;animation:pop .25s ease}
+  @keyframes pop{from{transform:translateY(12px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+  .m-head{padding:30px 34px 22px;border-bottom:1px solid var(--line)}
+  .m-head h2{font-size:23px;line-height:1.45;margin:10px 0 14px;padding-right:36px}
+  .close{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;border:0;background:#F1F2F4;color:var(--ink-2);font-size:20px;cursor:pointer;line-height:1}
+  .close:hover{background:#E4E6E9}
+  .m-body{padding:22px 34px 34px}
+  .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:22px}
+  @media (max-width:640px){.facts{grid-template-columns:minmax(0,1fr)}.m-head,.m-body{padding-left:20px;padding-right:20px}}
+  .fact{background:#F6F7F8;border-radius:12px;padding:12px 14px}
+  .fact .k{font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;margin-bottom:4px}
+  .fact .v{font-size:15px;font-weight:600;color:var(--ink)}
+  .fact.wide{grid-column:1/-1}
+  .fact .v.normal{font-weight:400;font-size:14px;line-height:1.6}
+  .section-label{font-size:12px;color:var(--ink-3);letter-spacing:.1em;margin:26px 0 10px;font-weight:600}
+  .m-summary{font-size:15px;line-height:1.85;color:var(--ink);margin:0}
+  .laws{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+  .laws li{font-size:14px;color:var(--ink-2);padding-left:14px;position:relative;line-height:1.6}
+  .laws li::before{content:"";position:absolute;left:0;top:.7em;width:6px;height:2px;background:var(--accent)}
+  .muted{color:var(--ink-3);font-size:14px}
+
+  details{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff;overflow:hidden}
+  details[open]{border-color:#CFD3D8}
+  summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:var(--ink)}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);transition:transform .2s}
+  details[open]>summary::after{transform:rotate(-135deg)}
+  summary:hover{background:#FAFAFB}
+  .term{font-size:12px;font-weight:600;background:#E8F1F4;color:var(--accent);padding:3px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
+  .d-body{padding:2px 18px 16px;font-size:14px;line-height:1.85;color:var(--ink-2);white-space:pre-line}
+  .group{border:0;background:#F6F7F8;padding:0}
+  .group>summary{font-size:15px}
+  .group>.inner{padding:2px 12px 12px}
+  .group .cnt{font-size:12px;color:var(--ink-3);font-weight:400}
+
+  @media print{
+    body{padding:0}
+    .toolbar,.overlay,.note{display:none!important}
+    .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;opacity:1;animation:none}
+    .summary{-webkit-line-clamp:unset;display:block}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>新北市政府兒童及少年福利與權益促進委員會<span class="sep">｜</span>列管案件彙整</h1>
+    <div class="sub" id="sub">資料載入中…</div>
+  </header>
+
+  <div class="toolbar">
+    <div class="chips" role="tablist">
+      <button class="chip on" data-f="all">全部</button>
+      <button class="chip" data-f="open">列管中</button>
+      <button class="chip" data-f="closed">已除管</button>
+    </div>
+    <span class="count" id="count"></span>
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="搜尋標題、承辦單位、摘要">
+    </label>
+  </div>
+
+  <main class="grid" id="grid"><div class="loading">資料載入中…</div></main>
+  <p class="note" id="note"></p>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" id="modal"></div>
+</div>
+
+<!-- 備援資料：線上試算表無法讀取時使用（2026-11-25 擷取） -->
+<script type="text/csv" id="fallback">列管案號,列管屆次,除管屆次,標題,SDGs,相關年齡層,承辦單位,相關法規,摘要,主席裁示,歷次列管事項,歷次辦理情形
+1140905-2,8-3,,建議新北市立圖書館評估延長夜間開放相關事宜,"4, 11","兒童, 少年",文化局（新北市立圖書館總館）,"聯合國《兒童權利公約》,中華民國《圖書館法》,教育部《圖書館設立及營運標準》",考試前很多國高中生想到圖書館讀書，委員會請新北市立圖書館評估延長夜間開放。圖書館說明，目前每週開放79.5小時，是全國最長；會考和學測前的週日延長到晚上9點，6月也取消清館日，但統測因準備時間太短沒有延長。統計發現晚上8點後來的人很少，深夜開放也可能讓兒少和工作人員不安全。圖書館也提醒兒少有休息的權利，目前已完成評估，建議解除列管。,本案考量本市兒少尚有需求，仍請新北市立圖書館以整體進行綜合性考量與評估（包含當初設立目的及特色規劃等），就兒少需求如何循序建立，倘若需要其他局處協助（如：街友滯留部分可通報社會局，有外展單位可協助關心或警政安全維護等），亦可再提出請相關局處共同配合。,"{""event"":{""8-3"":""關於新北市立圖書館總館延長開放時段部分，請於下次會議針對延長後實際效益，以及評估是否需調整等辦理進度說明，繼續列管。"",""8-4"":""本案請新北市立圖書館總館參照委員建議於下次再分析評估，並將延長時間安排增加學生分科、統測等時段，以及大樓分層管理安全之規劃，繼續列管。""}}","{""process"":{""8-4"":""一、已因應重要考試期間調整開放時間：\n新北市立圖書館每週開放時數達 79.5 小時，為全國最長，亦明顯高於教育部《圖書館設立及營運標準》所定每週至少 56 小時之規定。為回應學生考前自修需求，往年本館於 6 月清館日均延長開放至下午 5 時。115 年度另行調整，於 1 月及 5 月第一、第二週之星期日（1 月 4 日、1 月 11 日、5 月 3 日、5 月 10 日）延長開放至晚間 21:00，以服務國中教育會考及高中學測考生。\n二、延長開放時段實際使用效益有限：\n經統計 115 年 1 月 4 日及 1 月 11 日延長開放情形，晚間 8 點後使用效益明顯偏低，現場使用人數隨時間遞減；晚間 8 點以後之人次僅為 17 時至 18 時人次之 32.6%，減幅達 67.4%。其中總館人次僅占全市 18%，其餘分館平均現場使用人數約 10 人，顯示多數讀者需求集中於晚間而非通宵，深夜延長開放之整體效益有限。\n三、顧及讀者及工作人員人身安全：\n基於維護兒童及青少年讀者，以及夜間值勤人員人身安全之考量，清晨及深夜時段之開放，可能增加往返途中之安全風險；此外深夜時間人力有限，使用者人數少，反而增加單獨使用、衝突或不當行為之風險或遊民滯留情形，對讀者安全管理與現場秩序維護造成極大困難。\n四、持續滾動檢討與調整：\n本館將於 115 年 5 月 3 日及 5 月 10 日（星期日）持續辦理延長開放至 21:00，未來將依實際使用情形與民眾需求進行滾動檢討與調整，以在服務需求、使用效益與安全管理間取得適當平衡。\n五、本案已完成評估建請解除列管。"",""8-5"":""一、依據圖書館法第 4 條，公共圖書館設立宗旨係以社會大眾為主要服務對象，提供圖書資訊服務，推廣終身學習及辦理閱讀等文教活動之圖書館。\n二、依兒福聯盟 2023 年臺灣兒少學習狀況調查報告，六成國高中生感到學習疲勞，兒盟呼籲應多注意孩子的日常作息及身心狀況，以避免過勞。復依兒童權利公約第 31 條，締約國承認兒童享有休息及休閒之權利。秉持兒童權利公約的核心精神，涉及兒童事務應以符合其最大利益為首要考量，兒童有與生俱來的生存權利，國家與社會應確保其在生理、心理、心智、社交等方面享有健全的發展。本館開放時間遵循兒童權利公約原則，鼓勵兒童適度的念書與休息。\n三、現行新北市立圖書館每週開放時數達 79.5 小時，為全國最長。另今年 1 月及 5 月新增延長週日開放時間，一週開放時間達 83.5 小時，遠超過其他縣市，亦明顯高於教育部《圖書館設立及營運標準》所定每週至少 56 小時之規定。\n四、本館每年行事曆於前一年即規劃完畢，對於委員建議增加延長開館時段，本館已事先安排 6 月取消清館日，以因應考生備考需求；至統測部分則因提出時間距離統測時間甚近，人力排班準備時間不足，故未延長開館。\n五、本案已完成評估，建請解除列管。""}}"
+1141217-1,8-3,8-4,建議警察局分析兒少毒品與性剝削案件樣態並報告,"3, 16","兒童, 少年",警察局,中華民國《兒童及少年性剝削防制條例》,為了預防兒少接觸毒品和受到性剝削，委員會請警察局分析：兒少從哪些管道拿到毒品、犯罪少年是否有身心障礙或處境不利的身分，以及拍攝兒少性影像的加害人有哪些行為、和被害人是什麼關係。警察局已在工作報告中說明毒品取得管道；目前沒有犯罪少年身心障礙身分的統計，實務上很少見，但施用毒品的少年普遍有家庭（親子）教育問題。,為預防事件發生與加強宣導，請警察局於下次工作報告呈現相關資料分析，包含：兒少施用毒品取得路徑樣態、犯罪少年是否有身障身份或有不利處境兒少等身份態樣分析、兒少性剝削防制條例涉及第 36 條拍攝罪加害者之行為樣態、以及與被害人間關係等分析。,,"{""process"":{""8-4"":""一、有關少年施用毒品取得路徑樣態分析，詳如本局工作報告第 58 頁。\n二、關於犯罪少年是否有身障身分或有不利處境兒少等身分，本局並未有相關統計數據，然就實務上，鮮少發現行為少年有身心障礙者，然施用毒品之少年普遍有家庭（親子）教育問題。""}}"
+1141217-2,8-3,8-4,建議各局處配合社會局推動社安網與社福考核並報告,"1, 3, 4, 5, 16","兒童, 少年, 成人",社會局（兒少科、社工科）,,中央推出「社安網2.0」計畫，也會考核各縣市的社會福利工作，委員會請各局處和社會局一起準備。社安網2.0新增「專業久任」和「科技導入」，讓社工能長期服務、用科技提升效率，也更重視數位性別暴力、心理健康、育兒指導和兒少發展帳戶等服務。社會局也整理出考核可能扣分的地方，例如兒少代表中特殊處境兒少只占21%，沒有達到30%的目標，以及社區公共托育設施進度未達標。,有關中央頒定「社安網 2.0」計畫與 115 年度社福考核重要性議題指標，請各局處配合社會局辦理，並於下次會議重點呈現。,,"{""process"":{""8-4"":""一、有關推動「社安網計畫 2.0」重點如下：\n（一）社安網計畫 2.0 相較社安網第一二期計畫原有之四項策略，增加策略五「專業久任」及策略六「科技導入」，強化專業人員培育、經驗傳承及透過科技輔助提升專業人員處遇案件上之效率。\n（二）原有之四項策略於社安網計畫 2.0 中，策略一在獨老服務、育兒指導服務及實物給付等方案，新增專業人員補助，並將獨老及育兒納入考核內容；策略二除優化通報與保護服務機制外，更強調透過網絡及 AI 等工具防範及因應數位性別暴力議題；策略三則持續擴大深化心理衛生相關服務；策略四除保留原本跨網絡合作的重點外，本次特別強調「社安網常態化」之概念，讓委外辦理相關社安網方案不中斷，另透過宣導提升社區前端預防通報之敏感度及對社會資源的掌握等。\n（三）針對社安網計畫 2.0 考核指標與兒少服務上之關聯性：\n1．前端預防：透過社安網常態化概念及教育端輔導諮商及中輟關懷，及早發現並介入，降低風險升級機率。\n2．育兒指導：藉由提升育兒指導服務比率，建立新手父母育兒上之基礎概念，以及資源使用上之掌握，降低育兒焦慮所衍生之問題。\n3．脫貧服務：透過兒少發展帳戶，建立兒少儲蓄理財概念，提升家庭脫貧之可能性。\n4．保護服務：除持續優化保護通報及安置資源，針對性騷擾、親密暴力及數位性別暴力等，提升案件處遇上之效率及即時性。\n（四）針對各局處社安網 115 年考核指標推動情形，每季於全齡高風險跨局處會議上進行檢視；社會局部分則每月於晨會進行檢視。\n二、另「中央對地方政府 115 年度社福考核」經彙整相關局處及社會局各科室填報考核自評表，摘述重點如下：\n（一）經初步彙整，目前評估未能達滿分項目有三項（含兒少代表特殊處境身份參與率、建置社區公共托育設施達成率及經費執行率）如下：\n1．指標二、兒少社會參與權/兒少代表制度：為保障特殊處境族群兒少參與權利，兒少代表組成中，應以「特殊處境族群兒少代表人數比率」達 30% 為目標，惟平均 21%，酌扣 0.09 分；爾後會強化特殊對象之參與。\n2．指標七、托育服務/建構 0-2 歲兒童社區公共托育計畫執行情形：針對社區公共托育設施數達成率須 90%。查考核指標衛福部核定本市 4 案，然後續因場地興建中未能如期取得及調配其他單位辦理等因素，導致核定補助撤案，故無法達到滿分。\n3．指標七、托育服務/建構 0-2 歲兒童社區公共托育計畫執行情形：有關社區公共托育設施經費執行率，查考核指標案件達到撥款條件後，必須在 1 個月內函送社家署請款，且撥款案件比例須大於 90%。惟本市案件通過之期程不一，造成多次請款，爰於年底辦理核銷，導致超過 1 個月請款之期限指標，經向中央協調，仍無法拿分。\n（二）本次考核抽案項目共計 4 項（含家外安置個案報告、脆家個案委託安置報告、出養兒少評估報告及監調案訪視報告等抽查），涉及個案服務品質，將由考核委員依據主責社工於處遇計畫、評估報告及輔導計畫等撰寫之內容進行質性評分，為爭取考核分數，已加強督導審閱，並聘請相關專家學者事前協助抽案指導。\n（三）指標四為「兒少安全」（包含研訂兒少事故傷害策略、兒童遊戲場稽查等執行），涉多局處之業務及合作，透過相關會議及府一層跨局處會議討論及列管。""}}"
+1141217-3,8-3,8-4,建議社會局修正委員會名稱並納入「權益」「促進」,16,"兒童, 少年",社會局（兒少科）,"聯合國《兒童權利公約》,中華民國《兒童及少年福利與權益保障法》,新北市政府〈新北府社兒字第 1150398858 號函〉",因為《兒童及少年福利與權益保障法》修正，委員建議委員會名稱要加入「權益」和「促進」。社會局參考委員的意見和其他直轄市的做法，已在115年3月13日發文，把委員會正式改名為「新北市政府兒童及少年福利與權益促進委員會」，讓名稱更符合《兒童權利公約》保障兒少權利的精神。,因應兒少權法修正，有關委員會名稱納入「權益/促進」二字，請社會局參酌委員建議辦理修正事宜。,,"{""process"":{""8-4"":""有關本委員會更名一案，本府為呼應兒童權利公約宗旨，經參考前次會議委員建議及參酌各直轄市更名趨勢，已於 115 年 3 月 13 日新北府社兒字第 1150398858 號函簽准修正設置要點並函頒本府各一級機關，正式更名為『新北市政府兒童及少年福利與權益促進委員會』，以期更臻完備。""}}"
+1150409,8-4,,建議勞工局分析外籍幫傭新制配套措施並報告,"5, 8","兒童, 成人",勞工局,,勞動部從115年4月13日起放寬外籍家庭幫傭申請，只要家裡有1名未滿12歲的兒童，就能申請1名外籍幫傭，弱勢和特殊需求家庭可減免就業安定費。委員會請勞工局說明中央的配套和新北市怎麼因應。勞工局報告，申請前要先徵求本國幫傭7天；到5月17日已核准184件，多數是2個孩子以上的家庭。新北市外籍幫傭從253人增加到305人，勞動部也在研議讓雇主登記多個工作地點。,針對勞動部於 115 年 4 月 13 日起實施放寬外籍幫傭新制部分，請勞工局協助分析中央的配套措施與本市如何因應，於下次會議報告與說明。,,"{""process"":{""8-5"":""一、勞動部考量我國雙薪家庭比例提高，不少家長在工作、家務與育兒間承受極大壓力，特別是需要照顧幼兒或家有罕見疾病、身心障礙或發展遲緩兒童等特殊需求的家庭，更需要支持。勞動部因此推出「外籍家庭幫傭新制」，調整外籍幫傭申請資格門檻，每個育兒家庭只要有 1 名未滿 12 歲兒童即可申請，至多申請 1 名外籍幫傭，一般申請家庭須每月繳納 5000 元就業安定費，但弱勢及特殊需求家庭可獲得減免。\n二、外籍家庭幫傭申請新制 4 月 13 日起正式受理，「1 孩家庭」即可申請。依照勞動部截至 5 月 17 日止統計國內求才及招募許可的受理情形，有意申請家庭幫傭新制的民眾，需先至「公立就業服務機構」辦理本國幫傭求才登記，系統會在「全國就業通」網站上刊登求才公告 7 天，確認無法聘僱到合適的本國籍勞工，才具備申請資格。勞動部統計，自 4 月 13 日至 5 月 17 日止，各地就服中心受理申請國內求才案件累計達 5,756 件。勞動部統計至該日已完成程序、受理招募許可案件累計 1,003 件，已核准件數為 184 件。核准 184 件，其中 157 件（85.3%）屬於「2 孩以上家庭」，「27 件」（14.7%）為「一孩家庭」。\n三、查我國家庭幫傭移工人數 114 年 12 月為 1,988 人，新北市境內人數為 253 人（12.7%），截至 115 年 6 月為 2,383 人，增加 395 人（成長 20%），新北市境內人數為 305 人，增加 52 人（成長 20.6%）。\n四、勞動部於 115 年 7 月 27 日邀請各地方政府，針對外籍家庭幫傭工作地點認定規定召開研商會議，依現行規定，家庭幫傭工作地點應為雇主及列計點數家庭成員登載之「戶籍地」，又雇主雖可不經勞動部許可，逕調派所聘僱從事家庭幫傭之外國人至雇主新住所從事家庭幫傭工作，但仍應辦理住宿地點通報，且該新住所以雇主戶籍地為限。此規定尚未符合家庭實際需求。會議決議為勞動部仍以雇主及列計點數家庭成員登載之「戶籍地」，但將研議讓雇主可登記多處為工作地點。""}}"
+</script>
+
+<script>
+/* ====== 設定 ====== */
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqv2okonPL2ukBAJgO88rX8DqVJLHLvvCfIpyTp6ztSmkJOMAU5NFBDj5A2ebpveFTDWKX52XHcjZ2/pub?gid=1237133631&single=true&output=csv";
+
+const SDG = {
+  1:["消除貧窮","#E5243B"],2:["消除飢餓","#DDA63A"],3:["健康與福祉","#4C9F38"],
+  4:["優質教育","#C5192D"],5:["性別平權","#FF3A21"],6:["淨水與衛生","#26BDE2"],
+  7:["可負擔的潔淨能源","#E0A800"],8:["就業與經濟成長","#A21942"],9:["工業、創新與基礎建設","#FD6925"],
+  10:["減少不平等","#DD1367"],11:["永續城鄉","#FD9D24"],12:["責任消費與生產","#BF8B2E"],
+  13:["氣候行動","#3F7E44"],14:["保育海洋生態","#0A97D9"],15:["保育陸域生態","#56C02B"],
+  16:["和平、正義與健全制度","#00689D"],17:["夥伴關係","#19486A"]
+};
+
+/* ====== CSV 解析（支援引號、跳脫、換行） ====== */
+function parseCSV(text){
+  text = text.replace(/^﻿/,"");
+  const rows=[]; let row=[], f="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; }
+      else f+=c;
+    }else{
+      if(c==='"') q=true;
+      else if(c===','){row.push(f);f="";}
+      else if(c==='\n'||c==='\r'){
+        if(c==='\r'&&text[i+1]==='\n') i++;
+        row.push(f); f=""; if(row.some(x=>x.trim()!=="")) rows.push(row); row=[];
+      } else f+=c;
+    }
+  }
+  row.push(f); if(row.some(x=>x.trim()!=="")) rows.push(row);
+  const head=rows.shift().map(h=>h.trim());
+  return rows.map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||"").trim()])));
+}
+
+/* ====== 工具 ====== */
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const termKey=t=>t.split("-").map(n=>parseInt(n,10)||0);
+const sortTerms=arr=>arr.sort((a,b)=>{const x=termKey(a),y=termKey(b);return (x[0]-y[0])||(x[1]-y[1]);});
+const termLabel=t=>{
+  if(!t) return "—";
+  const m=String(t).trim().match(/^(\d+)\s*[-－–]\s*(\d+)$/);
+  return m?`第 ${m[1]} 屆第 ${m[2]} 次`:`第 ${t} 次`;
+};
+function splitList(s){return (s||"").split(/[,，、]/).map(x=>x.trim()).filter(Boolean);}
+function splitLaws(s){
+  // 依「,」切分，但避免切到書名號內
+  const out=[];let buf="",depth=0;
+  for(const c of (s||"")){
+    if("《〈「『（(".includes(c))depth++;
+    if("》〉」』）)".includes(c))depth=Math.max(0,depth-1);
+    if((c===","||c==="，"||c==="；"||c===";")&&depth===0){if(buf.trim())out.push(buf.trim());buf="";}
+    else buf+=c;
+  }
+  if(buf.trim())out.push(buf.trim());
+  return out;
+}
+function parseJSONField(s,key){
+  if(!s) return {};
+  try{
+    const o=JSON.parse(s);
+    const inner=(o&&typeof o==="object"&&o[key]&&typeof o[key]==="object")?o[key]:o;
+    const res={};
+    for(const [k,v] of Object.entries(inner)){ res[k]=String(v).replace(/\\n/g,"\n"); }
+    return res;
+  }catch(e){ return {"—":s}; }
+}
+function sdgBadge(n){
+  const d=SDG[n]; if(!d) return "";
+  return `<span class="sdg" style="background:${d[1]}"><b>${n}</b>${esc(d[0])}</span>`;
+}
+
+function normalize(r){
+  const removed=(r["除管屆次"]||"").trim();
+  return {
+    id:r["列管案號"], start:r["列管屆次"], end:removed,
+    status: removed?"closed":"open",
+    title:r["標題"], sdgs:splitList(r["SDGs"]).map(Number).filter(n=>SDG[n]),
+    ages:splitList(r["相關年齡層"]), unit:r["承辦單位"],
+    laws:splitLaws(r["相關法規"]), summary:r["摘要"], ruling:r["主席裁示"],
+    events:parseJSONField(r["歷次列管事項"],"event"),
+    process:parseJSONField(r["歷次辦理情形"],"process")
+  };
+}
+
+/* ====== 渲染 ====== */
+let DATA=[], filter="all", query="";
+const grid=document.getElementById("grid");
+
+function render(){
+  const q=query.trim().toLowerCase();
+  const list=DATA.filter(d=>(filter==="all"||d.status===filter)&&
+    (!q||[d.title,d.unit,d.summary,d.id].join(" ").toLowerCase().includes(q)));
+  document.getElementById("count").textContent=`共 ${list.length} 案`;
+  if(!list.length){grid.innerHTML=`<div class="empty">沒有符合條件的案件</div>`;return;}
+  grid.innerHTML=list.map((d,i)=>`
+    <button class="card" data-id="${esc(d.id)}" style="animation-delay:${i*50}ms">
+      <div class="card-top">
+        <span class="status ${d.status}">${d.status==="open"?"列管中":"已除管"}</span>
+        <span class="case-no">案號 ${esc(d.id)}</span>
+      </div>
+      <h2>${esc(d.title)}</h2>
+      <dl class="meta">
+        <dt>年齡層</dt><dd>${esc(d.ages.join("、")||"—")}</dd>
+        <dt>承辦單位</dt><dd>${esc(d.unit||"—")}</dd>
+      </dl>
+      <p class="summary">${esc(d.summary)}</p>
+      <div class="sdgs">${d.sdgs.map(sdgBadge).join("")}</div>
+    </button>`).join("");
+}
+
+function accordionGroup(title,obj,emptyText,openFirst){
+  const keys=sortTerms(Object.keys(obj));
+  if(!keys.length) return `<div class="section-label">${title}</div><p class="muted">${emptyText}</p>`;
+  const items=keys.map((k,i)=>`
+    <details ${openFirst&&i===keys.length-1?"open":""}>
+      <summary><span class="term">${esc(k==="—"?"未標示":termLabel(k))}</span>${title.replace("歷次","")}</summary>
+      <div class="d-body">${esc(obj[k])}</div>
+    </details>`).join("");
+  return `<div class="section-label">${title} <span class="cnt">· ${keys.length} 次</span></div>${items}`;
+}
+
+function openModal(id){
+  const d=DATA.find(x=>x.id===id); if(!d) return;
+  const m=document.getElementById("modal");
+  m.innerHTML=`
+    <button class="close" aria-label="關閉">×</button>
+    <div class="m-head">
+      <div class="card-top" style="justify-content:flex-start;gap:12px">
+        <span class="status ${d.status}">${d.status==="open"?"列管中":"已除管"}</span>
+        <span class="case-no">案號 ${esc(d.id)}</span>
+      </div>
+      <h2>${esc(d.title)}</h2>
+      <div class="sdgs">${d.sdgs.map(sdgBadge).join("")}</div>
+    </div>
+    <div class="m-body">
+      <div class="facts">
+        <div class="fact"><div class="k">列管屆次</div><div class="v">${esc(termLabel(d.start))}</div></div>
+        <div class="fact"><div class="k">除管屆次</div><div class="v">${d.end?esc(termLabel(d.end)):'<span class="muted">尚未除管</span>'}</div></div>
+        <div class="fact"><div class="k">相關年齡層</div><div class="v">${esc(d.ages.join("、")||"—")}</div></div>
+        <div class="fact wide"><div class="k">承辦單位</div><div class="v normal">${esc(d.unit||"—")}</div></div>
+      </div>
+
+      <div class="section-label">摘要</div>
+      <p class="m-summary">${esc(d.summary)}</p>
+
+      <div class="section-label">相關法規</div>
+      ${d.laws.length?`<ul class="laws">${d.laws.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>`:`<p class="muted">未列相關法規</p>`}
+
+      <div class="section-label">主席裁示</div>
+      ${d.ruling?`<details><summary>展開主席裁示</summary><div class="d-body">${esc(d.ruling)}</div></details>`:`<p class="muted">無</p>`}
+
+      ${accordionGroup("歷次列管事項",d.events,"尚無列管事項紀錄",false)}
+      ${accordionGroup("歷次辦理情形",d.process,"尚無辦理情形紀錄",false)}
+    </div>`;
+  m.querySelector(".close").onclick=closeModal;
+  const ov=document.getElementById("overlay");
+  ov.classList.add("show"); ov.setAttribute("aria-hidden","false");
+  ov.scrollTop=0; document.body.style.overflow="hidden";
+  history.replaceState(null,"","#"+encodeURIComponent(d.id));
+}
+function closeModal(){
+  const ov=document.getElementById("overlay");
+  ov.classList.remove("show"); ov.setAttribute("aria-hidden","true");
+  document.body.style.overflow="";
+  history.replaceState(null,"",location.pathname+location.search);
+}
+
+/* ====== 事件 ====== */
+grid.addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openModal(c.dataset.id);});
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); filter=b.dataset.f; render();
+});
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value;render();});
+
+/* ====== 載入資料：先讀線上試算表，失敗則用備援 ====== */
+async function load(){
+  let text=null, live=false;
+  try{
+    const res=await fetch(CSV_URL+"&t="+Date.now(),{cache:"no-store"});
+    if(res.ok){ text=await res.text(); live=true; }
+  }catch(e){}
+  if(!text||!text.includes("列管案號")){ text=document.getElementById("fallback").textContent.trim(); live=false; }
+  DATA=parseCSV(text).filter(r=>r["列管案號"]||r["標題"]).map(normalize);
+  const open=DATA.filter(d=>d.status==="open").length;
+  document.getElementById("sub").textContent=`共 ${DATA.length} 案 · 列管中 ${open} 案 · 已除管 ${DATA.length-open} 案`;
+  document.getElementById("note").textContent=live?"資料來源：Google 試算表（即時同步）":"資料來源：Google 試算表（目前顯示備援資料）";
+  render();
+  if(location.hash) openModal(decodeURIComponent(location.hash.slice(1)));
+}
+load();
+</script>
+</body>
+</html>
