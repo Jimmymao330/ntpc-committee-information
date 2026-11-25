@@ -108,7 +108,32 @@
   .group>.inner{padding:2px 12px 12px}
   .group .cnt{font-size:12px;color:var(--ink-3);font-weight:400}
 
+  /* AI 使用聲明標示 */
+  .ai{display:inline-flex;align-items:center;gap:3px;vertical-align:2px;font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.04em;line-height:1;padding:3px 6px 3px 5px;border-radius:5px;cursor:help;user-select:none;margin-left:6px;white-space:nowrap;transition:transform .15s}
+  .ai svg{width:9px;height:9px;flex:none}
+  .ai.gen{background:var(--accent);color:#fff}
+  .ai.assist{background:#fff;color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .ai:hover,.ai:focus-visible{transform:translateY(-1px);outline:none}
+  .ai:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent)}
+  /* 視窗內標示統一靠右 */
+  /* 所有 AI 標示對齊同一條垂直線：距內容右緣 14px（= 資訊格內距） */
+  .ai-row{display:flex;align-items:center;gap:12px;min-height:20px;padding-right:14px}
+  .ai-row.in-fact{padding-right:0}
+  .ai-row>.ai{margin:0 0 0 auto;flex:none}
+  .m-head h2.ai-row{align-items:flex-start;padding-right:14px}
+  .m-head h2.ai-row>.ai{margin-top:9px}
+  .sdg-row{align-items:flex-start}
+  .sdg-row>.ai{margin-top:4px!important}
+  .section-label.ai-row{margin:26px 0 10px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:13.5px;color:var(--ink);background:#F1F2F4;padding:4px 12px;border-radius:999px}
+  #tip{position:fixed;z-index:100;max-width:290px;background:#2E3136;color:#F3F4F6;font-size:12.5px;line-height:1.7;padding:11px 13px;border-radius:11px;box-shadow:0 10px 28px rgba(0,0,0,.22);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;top:0;left:0}
+  #tip.show{opacity:1;transform:none}
+  #tip b{display:block;color:#fff;font-size:13px;margin-bottom:3px}
+  #tip small{display:block;margin-top:6px;color:#A9AEB5;font-size:11.5px}
+
   @media print{
+    #tip{display:none}
     body{padding:0}
     .toolbar,.overlay,.note{display:none!important}
     .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;opacity:1;animation:none}
@@ -140,6 +165,8 @@
   <main class="grid" id="grid"><div class="loading">資料載入中…</div></main>
   <p class="note" id="note"></p>
 </div>
+
+<div id="tip" role="tooltip"></div>
 
 <div class="overlay" id="overlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" id="modal"></div>
@@ -222,6 +249,17 @@ function parseJSONField(s,key){
     return res;
   }catch(e){ return {"—":s}; }
 }
+/* ====== AI 使用聲明 ====== */
+const AI_TEXT={
+  gen:{label:"AI 生成",title:"AI 生成內容",
+    desc:"本欄位文字由生成式 AI 工具 Dia Browser 依據政府會議資料生成。"},
+  assist:{label:"AI 整理",title:"AI 協助整理",
+    desc:"本欄位文字由生成式 AI 工具 Dia Browser 依據政府會議協助歸納分類。"}
+};
+const AI_NOTE="AI 產出內容可能出現疏漏或與原意不相同，請以下方正式會議資料內容為準。";
+const SPARK='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1l2.6 7.4L22 11l-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6z"/></svg>';
+const ai=(k,cls="")=>`<span class="ai ${k} ${cls}" data-ai="${k}" tabindex="0" role="button" aria-label="${AI_TEXT[k].title}，查看說明">${SPARK}${AI_TEXT[k].label}</span>`;
+
 function sdgBadge(n){
   const d=SDG[n]; if(!d) return "";
   return `<span class="sdg" style="background:${d[1]}"><b>${n}</b>${esc(d[0])}</span>`;
@@ -287,21 +325,21 @@ function openModal(id){
         <span class="status ${d.status}">${d.status==="open"?"列管中":"已除管"}</span>
         <span class="case-no">案號 ${esc(d.id)}</span>
       </div>
-      <h2>${esc(d.title)}</h2>
-      <div class="sdgs">${d.sdgs.map(sdgBadge).join("")}</div>
+      <h2 class="ai-row"><span>${esc(d.title)}</span>${ai("gen")}</h2>
+      ${d.sdgs.length?`<div class="ai-row sdg-row"><div class="sdgs" style="padding:0;margin:0">${d.sdgs.map(sdgBadge).join("")}</div>${ai("assist")}</div>`:""}
     </div>
     <div class="m-body">
       <div class="facts">
         <div class="fact"><div class="k">列管屆次</div><div class="v">${esc(termLabel(d.start))}</div></div>
         <div class="fact"><div class="k">除管屆次</div><div class="v">${d.end?esc(termLabel(d.end)):'<span class="muted">尚未除管</span>'}</div></div>
-        <div class="fact"><div class="k">相關年齡層</div><div class="v">${esc(d.ages.join("、")||"—")}</div></div>
+        <div class="fact"><div class="k ai-row in-fact">相關年齡層${d.ages.length?ai("assist"):""}</div><div class="v">${esc(d.ages.join("、")||"—")}</div></div>
         <div class="fact wide"><div class="k">承辦單位</div><div class="v normal">${esc(d.unit||"—")}</div></div>
       </div>
 
-      <div class="section-label">摘要</div>
+      <div class="section-label ai-row">摘要${ai("gen")}</div>
       <p class="m-summary">${esc(d.summary)}</p>
 
-      <div class="section-label">相關法規</div>
+      <div class="section-label ai-row">相關法規${d.laws.length?ai("assist"):""}</div>
       ${d.laws.length?`<ul class="laws">${d.laws.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>`:`<p class="muted">未列相關法規</p>`}
 
       <div class="section-label">主席裁示</div>
@@ -324,8 +362,33 @@ function closeModal(){
 }
 
 /* ====== 事件 ====== */
-grid.addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openModal(c.dataset.id);});
-document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal();});
+grid.addEventListener("click",e=>{if(e.target.closest(".ai"))return;const c=e.target.closest(".card");if(c)openModal(c.dataset.id);});
+
+/* ====== AI 說明提示（懸浮 / 點擊 / 鍵盤） ====== */
+const tip=document.getElementById("tip");
+let tipEl=null, pinned=null;
+function showTip(el){
+  const t=AI_TEXT[el.dataset.ai]; if(!t) return;
+  tip.innerHTML=`<b>${t.title}</b>${t.desc}<small>${AI_NOTE}</small>`;
+  tip.classList.add("show"); tipEl=el;
+  const r=el.getBoundingClientRect(), w=tip.offsetWidth, h=tip.offsetHeight, pad=10;
+  let left=Math.min(Math.max(pad,r.left+r.width/2-w/2),innerWidth-w-pad);
+  let top=r.top-h-8; if(top<pad) top=r.bottom+8;
+  tip.style.left=left+"px"; tip.style.top=top+"px";
+}
+function hideTip(){tip.classList.remove("show");tipEl=null;pinned=null;}
+document.addEventListener("mouseover",e=>{const a=e.target.closest(".ai");if(a&&a!==tipEl)showTip(a);});
+document.addEventListener("mouseout",e=>{const a=e.target.closest(".ai");if(a&&!a.contains(e.relatedTarget)&&pinned!==a)hideTip();});
+document.addEventListener("focusin",e=>{const a=e.target.closest(".ai");if(a)showTip(a);});
+document.addEventListener("focusout",e=>{if(e.target.closest(".ai"))hideTip();});
+document.addEventListener("click",e=>{
+  const a=e.target.closest(".ai");
+  if(a){e.preventDefault();e.stopPropagation();if(pinned===a){hideTip();}else{showTip(a);pinned=a;}return;}
+  if(pinned)hideTip();
+},true);
+document.addEventListener("keydown",e=>{const a=e.target.closest&&e.target.closest(".ai");if(a&&(e.key==="Enter"||e.key===" ")){e.preventDefault();e.stopPropagation();showTip(a);pinned=a;}},true);
+document.addEventListener("scroll",()=>{if(tipEl)hideTip();},true);
+window.addEventListener("resize",hideTip);document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
